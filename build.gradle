@@ -1,0 +1,185 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'com.github.hierynomus.license'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'signing'
+apply plugin: 'maven'
+//apply plugin: 'nebula.lint'
+
+sourceCompatibility = 1.8
+version = "${version}"
+group = 'com.af5m.elm'
+archivesBaseName = "elm-lib-model"
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+buildscript {
+   repositories {
+    mavenLocal()
+	maven {
+		url "${artifactory_contextUrl}/${plugin_repo}"
+		url "https://plugins.gradle.org/m2/"
+	}
+  }
+  dependencies {
+       classpath "io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE"
+       classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.15"
+       classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
+       classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1"
+       //classpath 'com.netflix.nebula:gradle-lint-plugin:latest.release'
+  }
+}
+
+//gradleLint {
+  //rules  = ['dependency-parentheses','overridden-dependency-version','duplicate-dependency-class', 'all-dependency','unused-dependency']
+//}
+
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'ELM lib-model jar',
+                   'Implementation-Version': version
+    }
+}
+
+javadoc {
+    options {
+         encoding = 'windows-1251'
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven {
+	    url "${artifactory_contextUrl}/${dependency_repo}"
+	}
+}
+
+ext {
+	springVersion = '4.3.6.RELEASE'
+}
+
+
+dependencies {
+	compile "org.springframework:spring-web:${springVersion}"
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+	compile group: 'org.apache.openjpa', name: 'openjpa-persistence', version: '2.4.2'
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+	   
+	   mavenDeployer
+	   {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+			
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+	  
+	        pom.project {
+				artifactId = "lib-model"
+				packaging 'jar'
+				url 'https://www.github.com/af5m/elm-lib-model'
+				name 'ELM Model Library'
+				description 'Model objects used by Exception and Localized Messaging (ELM) projects'
+				inceptionYear '2017'
+				
+				licenses {
+					license {
+						name 'The Apache Software License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+						distribution 'repo'
+					}
+				}
+				
+				scm {
+				  connection 'scm:git:git://www.github.com/af5m/elm-lib-model.git'
+				  developerConnection 'scm:git:ssh://www.github.com/af5m/elm-lib-model.git'
+				  url 'http://www.github.com/af5m/elm-lib-model'
+				}
+				
+				developers {
+					developer {
+						id 'michaelsteven'
+						name 'Michael Hepfer'
+						email 'michaelsteven@hepfer.org'
+						organization 'AF5M'
+						organizationUrl 'www.github.com/af5m'
+						}
+				}
+				
+			}
+		}
+    }
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("artifactoryPublish") }
+    sign configurations.archives
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication){
+            artifact jar
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar
+        }
+    }
+}
+
+license {
+        header rootProject.file('license-template')
+        includes(["**/*.java", "**/*.properties"])
+        strictCheck true
+        ignoreFailures true
+        ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    	ext.name = 'AF5M'
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        defaults{ publications ("mavenJava")}
+        repository {
+	    // note: username and password being set by bamboo artifactory plugin
+            maven = true
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-release'
+            maven = true
+        }
+    }
+}
