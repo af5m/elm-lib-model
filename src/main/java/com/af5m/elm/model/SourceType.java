@@ -2,9 +2,9 @@ package com.af5m.elm.model;
 
 import java.util.UUID;
 
-public class Source {
+public class SourceType {
 	private UUID uuid;
 	private String name;
-	private String sourceType;
-	private UUID organizationUuid;
+	private String description;
+	private boolean isVisable;
 }
