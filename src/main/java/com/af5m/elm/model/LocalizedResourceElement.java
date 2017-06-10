@@ -3,9 +3,9 @@ package com.af5m.elm.model;
 import java.util.UUID;
 
 /**
- * The Class LocalizedMessageElement.
+ * The Class LocalizedResourceElement.
  */
-public class LocalizedMessageElement{
+public class LocalizedResourceElement{
 	private UUID uuid;
 	private Message parentMessage;
 	private Locale locale;

@@ -9,10 +9,10 @@ import java.util.UUID;
 public class Message {
 	
 	private UUID uuid;
-	private Source source;
+	private Bundle source;
 	private MessageType messageType;
 	private Severity severity;
-	private List<LocalizedMessageElement> localizedMessageElements;
+	private List<LocalizedResourceElement> localizedMessageElements;
 	private boolean active;
 	
 	/**
@@ -38,7 +38,7 @@ public class Message {
 	 *
 	 * @return the source
 	 */
-	public Source getSource() {
+	public Bundle getSource() {
 		return source;
 	}
 	
@@ -47,7 +47,7 @@ public class Message {
 	 *
 	 * @param source the new source
 	 */
-	public void setSource(Source source) {
+	public void setSource(Bundle source) {
 		this.source = source;
 	}
 	
@@ -92,7 +92,7 @@ public class Message {
 	 *
 	 * @return the localized messages
 	 */
-	public List<LocalizedMessageElement> getLocalizedMessageElements() {
+	public List<LocalizedResourceElement> getLocalizedMessageElements() {
 		return localizedMessageElements;
 	}
 	
@@ -101,7 +101,7 @@ public class Message {
 	 *
 	 * @param localizedMessages the new localized messages
 	 */
-	public void setLocalizedMessageElements(List<LocalizedMessageElement> localizedMessageElements) {
+	public void setLocalizedMessageElements(List<LocalizedResourceElement> localizedMessageElements) {
 		this.localizedMessageElements = localizedMessageElements;
 	}
 	

@@ -3,12 +3,11 @@ package com.af5m.elm.model;
 import java.util.UUID;
 
 /**
- * The Class Source.
+ * The Class Bundle.
  */
-public class Source {
+public class Bundle {
 	private UUID uuid;
 	private String name;
-	private String sourceType;
 	private UUID organizationUuid;
 	public UUID getUuid() {
 		return uuid;
@@ -41,23 +40,6 @@ public class Source {
 		this.name = name;
 	}
 	
-	/**
-	 * Gets the source type.
-	 *
-	 * @return the source type
-	 */
-	public String getSourceType() {
-		return sourceType;
-	}
-	
-	/**
-	 * Sets the source type.
-	 *
-	 * @param sourceType the new source type
-	 */
-	public void setSourceType(String sourceType) {
-		this.sourceType = sourceType;
-	}
 	
 	/**
 	 * Gets the organization uuid.
